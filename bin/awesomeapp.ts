@@ -2,6 +2,7 @@
 import 'source-map-support/register';
 import * as cdk from '@aws-cdk/core';
 import {AwesomeNetworkStack} from '../lib/awesome/stacks/network';
+import {AwesomeAppStack} from '../lib/awesome/stacks/app';
 
 const app = new cdk.App();
 
@@ -17,7 +18,9 @@ const props = {
     account: '380653657229',
     region: 'us-west-1'
   },
+  sshKeyName: 'learncdk',
 };
 
-const network = new AwesomeNetworkStack(app, `${org}-${environment}-network`, props);
+const networkStack = new AwesomeNetworkStack(app, `${org}-${environment}-network`, props);
+const appStack = new AwesomeAppStack(app, `${org}-${environment}-app`, { ...props, vpc: networkStack.vpc });
 
