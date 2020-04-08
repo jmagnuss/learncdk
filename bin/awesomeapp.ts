@@ -18,7 +18,6 @@ const props = {
     account: '380653657229',
     region: 'us-west-1'
   },
-  sshKeyName: 'learncdk',
 };
 
 const networkStack = new AwesomeNetworkStack(app, `${org}-${environment}-network`, props);
