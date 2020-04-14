@@ -18,8 +18,17 @@ const props = {
     account: '380653657229',
     region: 'us-west-1'
   },
+  domainName: 'aws.learncdk.com',
+  domainZoneId: 'Z01579783AM6CR1D6G2HK',
 };
 
 const networkStack = new AwesomeNetworkStack(app, `${org}-${environment}-network`, props);
 const appStack = new AwesomeAppStack(app, `${org}-${environment}-app`, { ...props, vpc: networkStack.vpc });
+appStack.enableDaytimeOnly();
+
+props.environment = 'prod';
+const appStackProd = new AwesomeAppStack(app, `${org}-prod-app`, { ...props, vpc: networkStack.vpc });
+appStackProd.enableCpuScaling();
+  const certificateArn = 'arn:aws:acm:us-west-1:380653657229:certificate/898377be-dd9d-464e-ba40-395b730b63b7';
+  appStackProd.terminateSSL(certificateArn);
 
