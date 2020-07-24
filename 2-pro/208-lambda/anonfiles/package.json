@@ -1,0 +1,35 @@
+{
+  "name": "anonfiles",
+  "version": "0.1.0",
+  "bin": {
+    "anonfiles": "bin/anonfiles.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@aws-cdk/assert": "1.42.1",
+    "@types/jest": "^25.2.3",
+    "@types/node": "10.17.5",
+    "aws-cdk": "1.42.1",
+    "jest": "^25.5.0",
+    "ts-jest": "^25.3.1",
+    "ts-node": "^8.10.2",
+    "typescript": "~3.7.2"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-apigateway": "^1.42.1",
+    "@aws-cdk/aws-events": "^1.42.1",
+    "@aws-cdk/aws-events-targets": "^1.42.1",
+    "@aws-cdk/aws-iam": "^1.42.1",
+    "@aws-cdk/aws-lambda": "^1.42.1",
+    "@aws-cdk/aws-route53": "^1.42.1",
+    "@aws-cdk/aws-route53-targets": "^1.42.1",
+    "@aws-cdk/aws-s3": "^1.42.1",
+    "@aws-cdk/core": "1.42.1",
+    "source-map-support": "^0.5.16"
+  }
+}
