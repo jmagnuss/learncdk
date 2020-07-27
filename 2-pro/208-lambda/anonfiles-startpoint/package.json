@@ -1,8 +1,8 @@
 {
-  "name": "gogodynamo",
+  "name": "anonfiles",
   "version": "0.1.0",
   "bin": {
-    "gogodynamo": "bin/gogodynamo.js"
+    "anonfiles": "bin/anonfiles.js"
   },
   "scripts": {
     "build": "tsc",
@@ -21,11 +21,13 @@
     "typescript": "~3.7.2"
   },
   "dependencies": {
-    "@aws-cdk/aws-dynamodb": "^1.38.0",
+    "@aws-cdk/aws-apigateway": "^1.38.0",
+    "@aws-cdk/aws-iam": "^1.38.0",
+    "@aws-cdk/aws-lambda": "^1.38.0",
+    "@aws-cdk/aws-route53": "^1.38.0",
+    "@aws-cdk/aws-route53-targets": "^1.38.0",
+    "@aws-cdk/aws-s3": "^1.38.0",
     "@aws-cdk/core": "1.38.0",
-    "@aws-cdk/custom-resources": "^1.38.0",
-    "i": "^0.3.6",
-    "npm": "^6.14.5",
     "source-map-support": "^0.5.16"
   }
 }
