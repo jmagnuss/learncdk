@@ -17,7 +17,7 @@
     "aws-cdk": "1.54.0",
     "jest": "24.9.0",
     "ts-jest": "24.3.0",
-    "ts-node": "8.10.2",
+    "ts-node": "9.1.1",
     "typescript": "3.7.5",
     "minimist": "1.2.5",
     "acorn": "7.3.1"
