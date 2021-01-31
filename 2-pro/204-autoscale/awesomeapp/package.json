@@ -20,7 +20,7 @@
     "ts-node": "8.10.2",
     "typescript": "3.7.5",
     "minimist": "1.2.5",
-    "acorn": "7.3.1"
+    "acorn": "8.0.5"
   },
   "dependencies": {
     "@aws-cdk/aws-autoscaling": "1.54.0",
