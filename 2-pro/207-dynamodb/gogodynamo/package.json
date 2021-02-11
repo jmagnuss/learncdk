@@ -18,7 +18,7 @@
     "ts-jest": "25.5.1",
     "aws-cdk": "1.54.0",
     "ts-node": "8.10.1",
-    "typescript": "3.7.5"
+    "typescript": "3.9.9"
   },
   "dependencies": {
     "@aws-cdk/aws-dynamodb": "1.54.0",
