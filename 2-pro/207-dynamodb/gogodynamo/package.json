@@ -24,7 +24,7 @@
     "@aws-cdk/aws-dynamodb": "1.54.0",
     "@aws-cdk/core": "1.54.0",
     "@aws-cdk/custom-resources": "1.54.0",
-    "i": "0.3.6",
+    "i": "0.3.7",
     "npm": "6.14.7",
     "source-map-support": "0.5.19"
   }
