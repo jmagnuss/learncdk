@@ -14,8 +14,7 @@ export interface AwesomeAppStackProps extends cdk.StackProps {
   vpc: ec2.IVpc,
   domainName: string,
   domainZoneId: string,
-  databaseInfo?: secretmanager.ISecret,
-} 
+}
 
 export class AwesomeAppStack extends cdk.Stack {
 
@@ -33,61 +32,53 @@ export class AwesomeAppStack extends cdk.Stack {
     this.securityGroup = new ec2.SecurityGroup(this, `${props.org}-${props.environment}-appServerSG`, {
       vpc: props.vpc,
       securityGroupName: `${props.org}-${props.environment}-appServerSG`,
-      description: 'Allow ssh and web access from anywhere',
+      description: 'Allow web from anywhere',
       allowAllOutbound: true
     });
-    this.securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'allow public http access')
-    this.securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'allow public https access')
+    this.securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'allow public http access');
+    this.securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'allow public https access');
 
     const userData = ec2.UserData.forLinux();
     userData.addCommands('yum install -y nginx', 'chkconfig nginx on', 'service nginx start');
     // make sure the latest SSM Agent is installed.
     const SSM_AGENT_RPM = 'https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm';
-    userData.addCommands(
-      `sudo yum install -y ${SSM_AGENT_RPM}`, 
-      'restart amazon-ssm-agent', 
-      `export DB_SECRET_ARN1=${props.databaseInfo?.secretValue.toString()}`,
-      `export DB_SECRET_ARN2=${props.databaseInfo?.secretValueFromJson('password').toString()}`,
-      `export DB_SECRET_ARN3=${props.databaseInfo?.secretValueFromJson('password')}`,
-      );
+    userData.addCommands(`yum install -y ${SSM_AGENT_RPM}`, 'restart amazon-ssm-agent');
+    
 
-    // define the IAM role that will allow the EC2 instance to communicate with SSM 
     const role = new iam.Role(this, `${props.org}-${props.environment}-appServerRole`, {
-      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com')
+        assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com')
     });
-    // arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-    role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
 
+	// define the IAM role that will allow the EC2 instance to communicate with SSM 
+    role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
     this.autoScaleGroup = new autoscaling.AutoScalingGroup(this, `${props.org}-${props.environment}-autoScale`, {
       vpc: props.vpc,
       machineImage: new ec2.AmazonLinuxImage(),
       instanceType: new ec2.InstanceType('t3.micro'),
       userData: userData,
-      // https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-ec2.SubnetSelection.html
       vpcSubnets: props.vpc.selectSubnets({
-        subnetType: ec2.SubnetType.PRIVATE
+        subnetType: ec2.SubnetType.PRIVATE_WITH_NAT
       }),
       role: role,
-      maxCapacity: 5
+      minCapacity: 1,
+      maxCapacity: 2
     });
     this.autoScaleGroup.addSecurityGroup(this.securityGroup);
-
-    this.loadBalancer = new elb.ApplicationLoadBalancer(this, 'LoadBalancer', {
+    
+    this.loadBalancer = new elb.ApplicationLoadBalancer(this, 'LB', {
       vpc: props.vpc,
       internetFacing: true
     });
-
     const httpListener = this.loadBalancer.addListener('HttpListener', {
       port: 80,
     });
-    this.targetGroup = httpListener.addTargets('ApplicationFleet', {
+    this.targetGroup = httpListener.addTargets('AppServerFleet', {
       port: 80,
-      targets: [this.autoScaleGroup]
+      targets: [ this.autoScaleGroup ]
     });
-
     const domain = route53.HostedZone.fromHostedZoneAttributes(this, 'RootDomain', {
       zoneName: this.props.domainName,
-      hostedZoneId: this.props.domainZoneId,
+      hostedZoneId: this.props.domainZoneId
     });
     const dns = new route53.ARecord(this, 'StaticWebsiteSubdomain', {
       zone: domain,
@@ -96,37 +87,31 @@ export class AwesomeAppStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, `${props.org}-${props.environment}-DNS`, { value: dns.domainName });
-
   }
-
   public terminateSSL(certificateArn: string) {
     const certificate = certmgr.Certificate.fromCertificateArn(this, 'Certificate', certificateArn);
     const httpsListener = this.loadBalancer.addListener('HttpsListener', {
       port: 443,
-      certificates: [certificate]
+      certificates: [ certificate]
     });
-    httpsListener.addTargetGroups('ApplicationFleet', {
-      targetGroups: [this.targetGroup]
-
-    });
+    httpsListener.addTargetGroups('AppServerFleet', {
+      targetGroups: [ this.targetGroup ]
+    })
   }
 
-  public enableDaytimeOnly(startTime: number = 7, endTime: number = 19) {
+  public enableDaytimeOnly(startTime: number =7, endTime: number = 19) {
     this.autoScaleGroup.scaleOnSchedule('PrescaleInTheMorning', {
       schedule: autoscaling.Schedule.cron({ hour: String(startTime), minute: '0' }),
       desiredCapacity: 1,
     });
-
     this.autoScaleGroup.scaleOnSchedule('AllowDownscalingAtNight', {
       schedule: autoscaling.Schedule.cron({ hour: String(endTime), minute: '0' }),
       desiredCapacity: 0
     });
   }
-
   public enableCpuScaling(max: number = 50) {
     this.autoScaleGroup.scaleOnCpuUtilization('KeepSpareCPU', {
       targetUtilizationPercent: max
     });
   }
-
 }

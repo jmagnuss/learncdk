@@ -26,8 +26,8 @@ export class GogodynamoStack extends cdk.Stack {
       indexName: 'gsi1',
       partitionKey: { name: 'GSI1PK', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'GSI1SK', type: dynamodb.AttributeType.STRING },
-
     });
+
     new cdk.CfnOutput(this, 'singleTableName', { value: singleTable.tableName });
     new cdk.CfnOutput(this, 'singleTableArn', { value: singleTable.tableArn });
 
@@ -35,7 +35,7 @@ export class GogodynamoStack extends cdk.Stack {
       PK: { S: 'CUSTOMER#jmagnuss' },
       SK: { S: 'CUSTOMER#jmagnuss' },
       firstName: { S: 'Jeff' },
-      lastName: { S: 'Magnusson'},
+      lastName: { S: 'Magnuss' },
     };
     new customres.AwsCustomResource(this, 'FakeCustomerInserter', {
       onCreate: {
@@ -45,7 +45,7 @@ export class GogodynamoStack extends cdk.Stack {
           TableName: singleTable.tableName,
           Item: fakeCustomer,
         },
-        physicalResourceId: { id: 'insertFakeCustomer'},
+        physicalResourceId: { id: 'insertFakeCustomer' },
       },
       policy: customres.AwsCustomResourcePolicy.fromStatements([
         new iam.PolicyStatement({
