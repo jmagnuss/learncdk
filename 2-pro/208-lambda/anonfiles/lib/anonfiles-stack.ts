@@ -7,6 +7,7 @@ import * as route53 from '@aws-cdk/aws-route53';
 import * as targets from '@aws-cdk/aws-route53-targets';
 import * as events from '@aws-cdk/aws-events';
 import * as eventTargets from '@aws-cdk/aws-events-targets';
+import { Effect } from '@aws-cdk/aws-iam';
 
 export interface AnonFilesStackProps extends cdk.StackProps {
   bucketName: string, // storage bucket
@@ -30,9 +31,10 @@ export class AnonFilesStack extends cdk.Stack {
     });
 
     // a Lambda to list and store files
-    const lambdaPolicy = new iam.PolicyStatement();
-    lambdaPolicy.addActions('s3:ListBucket','s3.Put');
+    const lambdaPolicy = new iam.PolicyStatement({effect: iam.Effect.ALLOW});
+    lambdaPolicy.addActions('s3:*');//'s3:Put*'
     lambdaPolicy.addResources(this.bucket.bucketArn);
+    lambdaPolicy.addResources(`${this.bucket.bucketArn}/*`);
 
     this.apiLambda = new lambda.Function(this, 'FileApiFunction', {
       code: lambda.Code.fromAsset('lambda'),

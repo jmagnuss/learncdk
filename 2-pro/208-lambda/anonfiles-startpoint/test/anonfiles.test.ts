@@ -5,7 +5,7 @@ import * as Anonfiles from '../lib/anonfiles-stack';
 test('Empty Stack', () => {
     const app = new cdk.App();
     // WHEN
-    const stack = new Anonfiles.AnonfilesStack(app, 'MyTestStack');
+    const stack = new Anonfiles.AnonFilesStack(app, 'MyTestStack');
     // THEN
     expectCDK(stack).to(matchTemplate({
       "Resources": {}
